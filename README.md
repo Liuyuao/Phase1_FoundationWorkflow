@@ -65,33 +65,6 @@ flowchart TD
 
 ---
 
-## Getting Started
-
-### 1. Prerequisites & Environment Setup
-
-Ensure your local environment has active AWS credentials configured (`aws configure`) and that your IAM identity possesses execution permissions for Amazon Bedrock models and the target Knowledge Bases.
-
-### 2. Install Dependencies
-
-```bash
-pip install -r requirements.txt
-
-```
-
-### 3. Run the Backend Agent Locally
-
-```bash
-python langgraph_insurance_agent.py
-
-```
-
-### 4. Launch the Frontend UI
-
-```bash
-streamlit run app.py
-
-```
----
 
 ## Evaluation & Test Scenarios
 
@@ -143,9 +116,14 @@ Building this multi-agent car insurance POC provided deep hands-on experience in
 ## Repository Structure
 
 ```text
-├── langgraph_insurance_agent.py  # Core Backend: LangGraph Multi-Agent framework and boto3 logic
-├── app.py                        # Frontend: Streamlit application and UI session state management
-├── requirements.txt              # Project dependencies (boto3, langgraph, streamlit)
-└── README.md                     # System documentation
+Phase1_FoundationWorkflow/
+├── README.md                          # Project overview, setup, and architecture summary
+├── agent_engine.py                    # LangGraph workflow: Supervisor + 3 specialized agents + routing logic
+├── config.py                          # Central config: KB IDs, prompts, inference settings
+├── frontend_app.py                    # Streamlit UI with chat interface and session memory
+└── Test/
+    ├── agents_testing_claims.py       # Standalone tests for Claims Agent
+    ├── agents_testing_policy.py       # Standalone tests for Policy Agent
+    └── agents_testing_products.py     # Standalone tests for Product Agent
 
 ```
