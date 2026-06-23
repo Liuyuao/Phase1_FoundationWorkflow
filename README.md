@@ -6,6 +6,8 @@ The system is designed with a hybrid architecture that combines the following 3 
 1. **Amazon Bedrock Managed Knowledge Bases (cloud RAG pipeline)**: for handling simulated policy guidelines, product catalogs, and claims processing workflows.  
 2. **Supervisor workflow orchestration (local coding)**: This part shows how the user questions are routed to the appropriate agent and how each agent handles the question, prompt template design and hallucination mitigation.
 3. **Streamlit for User-Facing UI Design**
+
+
 Details of each part are shown in the section below.
 
 *Note: This is an exploratory prototype designed to evaluate multi-agent orchestration patterns using mock data. It is a phase-1 implementation and does not contain live legal compliance guardrails or state-specific statutory provisions.*
