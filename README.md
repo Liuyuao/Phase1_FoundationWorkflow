@@ -1,10 +1,14 @@
 # Multi-Agent Automotive Insurance QA Prototype (POC)
 
-This repository serves as an architectural **Proof of Concept (POC)** and simulation of an end-to-end, multi-agent car insurance question-answering system ( Policy Agent, Claims Agent, Product Agen). The project focuses on demonstrating **orchestration frameworks** and **cloud-native AI platform designs** by routing and resolving simulated user queries across distinct functional domains.
+This repository is an architectural **Proof of Concept (POC)** and showcase of an end-to-end, multi-agent car insurance question-answering system (Policy Agent, Claims Agent, Product Agent). The project focuses on demonstrating **orchestration frameworks** and **cloud-native AI platform designs** by routing and resolving simulated user questions across distinct functional domains.
 
-The system implements a hybrid architecture that combines **code-centric orchestration** for multi-agent state routing with a **fully managed cloud RAG pipeline (Knowledge Bases for Amazon Bedrock)** to handle simulated policy guidelines, product catalogs, and claims processing workflows. 
+The system is designed with a hybrid architecture that combines the following 3 parts:
+1. **Amazon Bedrock Managed Knowledge Bases (cloud RAG pipeline)**: for handling simulated policy guidelines, product catalogs, and claims processing workflows.  
+2. **Supervisor workflow orchestration (local coding)**: This part shows how the user questions are routed to the appropriate agent and how each agent handles the question, prompt template design and hallucination mitigation.
+3. **Streamlit for User-Facing UI Design**
+Details of each part are shown in the section below.
 
-*Note: This is an exploratory prototype designed to evaluate multi-agent orchestration patterns using mock data. It is not an enterprise-ready implementation and does not contain live legal compliance guardrails or state-specific statutory provisions.*
+*Note: This is an exploratory prototype designed to evaluate multi-agent orchestration patterns using mock data. It is a phase-1 implementation and does not contain live legal compliance guardrails or state-specific statutory provisions.*
 
 ## Core Architectural Concepts Under Evaluation
 
