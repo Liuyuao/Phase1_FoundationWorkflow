@@ -74,21 +74,13 @@ flowchart TD
 
 ## Evaluation & Test Scenarios
 
-The system has been programmatically evaluated against realistic car insurance scenarios—specifically focusing on highly localized statutory variations (such as Connecticut's unique coverage laws) across three specific operational boundaries:
+We evaluated three functional domains (Policy, Claims, Product) using representative user queries. All tests follow a unified routing pipeline: **supervisor → intent classification → domain agent → knowledge base retrieval → response synthesis**. Sample queries listed below
 
-1. **Policy Coverage & Premium Evaluation (Policy Domain)**:
-* *Input*: *"What are the standard exclusions under the Connecticut personal auto policy endorsement?"*
-* *Routing Lifecycle*: `Supervisor` ➡️ Policy Intent Recognized ➡️ `policy_agent` ➡️ Queries Policy Knowledge Base ➡️ Extracts exact policy parameters.
-
-
-2. **Dynamic Incident Handling (Claims Domain)**:
-* *Input*: *"I just rear-ended someone in West Hartford, what do I do next?"*
-* *Routing Lifecycle*: `Supervisor` ➡️ Claims/Accident Intent Recognized ➡️ `claims_agent` ➡️ Queries Claims Knowledge Base ➡️ Synthesizes a localized step-by-step claims filing guide.
-
-
-3. **Insurance Offerings & Bundling Options (Product Domain)**:
-* *Input*: *"Does this company offer a combined umbrella option or multi-car discount packages?"*
-* *Routing Lifecycle*: `Supervisor` ➡️ Product Information Intent Recognized ➡️ `product_agent` ➡️ Queries Product Knowledge Base ➡️ Returns cross-selling and product availability matrices.
+| Domain   | Sample User Query                                                                                   |
+|----------|-----------------------------------------------------------------------------------------------------|
+| Policy   | "What are the standard exclusions under the Connecticut personal auto policy endorsement?"          |
+| Claims   | "I just rear-ended someone in West Hartford, what do I do next?"                                   |
+| Product  | "Does this company offer a combined umbrella option or multi-car discount packages?"               |
 
 ---
 
