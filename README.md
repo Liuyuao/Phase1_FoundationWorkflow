@@ -78,9 +78,9 @@ We evaluated three functional domains (Policy, Claims, Product) using representa
 
 | Domain   | Sample User Query                                                                                   |
 |----------|-----------------------------------------------------------------------------------------------------|
-| Policy   | "What are the standard exclusions under the Connecticut personal auto policy endorsement?"          |
-| Claims   | "I just rear-ended someone in West Hartford, what do I do next?"                                   |
-| Product  | "Does this company offer a combined umbrella option or multi-car discount packages?"               |
+| Policy   | "What does liability coverage cover? "          |
+| Claims   | "My friend borrowed my car and got into an accident. Am I covered?"                                   |
+| Product  | "What is the good student discount?"               |
 
 ---
 
@@ -89,25 +89,25 @@ We evaluated three functional domains (Policy, Claims, Product) using representa
 Building this multi-agent car insurance POC provided deep hands-on experience in balancing cloud-native infrastructure efficiency with agentic workflow predictability.  Below are the core technical challenges encountered and resolved during implementation:
 
 ### 1. Eliminating LLM Non-Determinism Across Environments
-* **The Challenge**: During baseline testing, identical prompts and centralized configurations yielded inconsistent results across the local testing script (`agents_testing_claims.py`) and the Streamlit web UI (`app.py`). The discrepancies weren't just stylistic; the core answers drifted in completely different factual and logical directions.
-* **What I Tried**: Refactored `config.py` to introduce a centralized `INFERENCE_CONFIG` with `temperature` explicitly forced to `0.0`. By default, invoking the Amazon Bedrock `retrieve_and_generate` API without an explicit `inferenceConfig` uses a non-zero temperature (typically `0.7`), triggering probabilistic token sampling that causes semantic drift across isolated runtime sessions.
-* **The Result**: This mitigation **successfully resolved the semantic drift**. Forcing the temperature to `0.0` ensured that the core accuracy and business logic of the answers always aligned in the exact same direction across both environments. However, it **did not achieve absolute token-for-token formatting symmetry**, proving that while temperature controls the logical direction, secondary runtime factors (such as LangGraph state overhead and micro-variances in vector chunk retrieval order) still influence the final syntactic layout.
+* **The Challenge**: During baseline testing, identical prompts and centralized configurations yielded inconsistent results across the local testing script (`agents_testing_claims.py`) and the Streamlit web UI (`app.py`). The discrepancies weren't just stylistic; the core answers drifted in completely different directions.
+* **What I Tried**: Refactored `config.py` to introduce a centralized `INFERENCE_CONFIG` with `temperature` explicitly forced to `0.0`. By default, invoking the Amazon Bedrock `retrieve_and_generate` API without an explicit `inferenceConfig` uses a default temperature, which adds randomness and causes different outputs across runs.
+* **The Result**: Answers are now logically aligned across both environments. Final wording still varies slightly due to other runtime factors (LangGraph state, retrieval order etc.), but the core content is consistent. 
 
 ### 2. Upgrading Routing: From Rigid Keywords to LLM Semantic Routing
 * **The Edge Case**: During baseline testing, a classic keyword collision bug occurred. When a user asked: *"My friend borrowed my car and got into an **accident**. Am I **covered**?"*, a traditional string-matching router incorrectly forced the flow into the **Claims Agent** because it flagged the word "accident", completely ignoring that the core user intent was to verify policy eligibility.
-* **The Solution**: Hardcoded keyword matching cannot resolve cross-domain semantic overlap. To achieve a **well-governed and reliable** environment, the architecture was refactored to use an **LLM-driven Semantic Router**. By introducing a lightweight intent-classification prompt, the core model now reads the comprehensive semantic meaning, accurately directing such complex boundary queries to the **Policy Agent**.
+* **The Solution**: Hardcoded keyword matching cannot resolve cross-domain semantic overlap. To achieve a **well-governed and reliable** environment, the architecture will need to be refactored to use an **LLM-driven Semantic Router**. By introducing a lightweight intent-classification prompt, the core model will read the comprehensive semantic meaning, accurately directing such complex boundary queries to the **Policy Agent**.
 
 ### 3. FinOps Awareness: Navigating Serverless Cost Realities
-* **The Discovery**: A major operational takeaway involved monitoring the hidden billing mechanisms of **Amazon OpenSearch Serverless (AOSS)**. While conceptually "serverless", AOSS maintains a default baseline capacity allocation (1 Indexing OCU + 1 Search OCU) to ensure high availability, translating to a ~ $5/day fixed infrastructure cost even when the application sits entirely idle.
-* **The Practice**: For a lean prototype and RAG evaluation phase, strict environment lifecycle management is essential. The development pipeline was standardized to tear down AOSS collections during extended downtime. For production scaling, this insight guides future architectural revisions to leverage true scale-to-zero capabilities or transition to cost-efficient single-instance vector stores during early testing.
+* **The Discovery**:  A key operational insight came from monitoring the billing behavior of Amazon OpenSearch Serverless (AOSS). Although marketed as "serverless," AOSS reserves a baseline amount of capacity at all times for high availability. In the author's region, this costs about $5/day even when the system is completely idle.
+* **The Practice**: For a lean prototype and RAG evaluation phase, strict environment lifecycle management is essential. The author standardized the pipeline to tear down AOSS collections during extended downtime. For production, this cost consideration needs to be factored into the overall architecture planning.
 
 ---
 
 ## Future Roadmap
 
-1. **LLM-Driven Semantic Router**: Upgrade the current keyword-matching logic inside the `supervisor` node to a fully dynamic semantic intent router using a lightweight Bedrock LLM call, improving routing robustness against ambiguous user phrasings.
-2. **Model Context Protocol (MCP) Integration**: Wrap the underlying S3 buckets and internal claiming databases into a standardized MCP Server ecosystem, unlocking complete framework-agnostic tool usage (`Tool Use`) for future agent extensions.
-3. **Migration to AWS Bedrock AgentCore**: Package the local LangGraph state-machine into a managed AgentCore runtime to leverage production-ready API Gateways, native CloudWatch performance metrics, and automated AWS Guardrails for input/output sanitization.
+1. **LLM-Driven Semantic Router**: Replace keyword matching with semantic intent routing using a lightweight Bedrock LLM call for better handling of ambiguous queries.
+2. **Testing, Observability & Evaluation**: Add metrics, monitoring, audit logging, tracing, and an evaluation harness to improve system reliability and enable regression testing.
+3. **Model Context Protocol (MCP) Integration**: Expose S3 buckets as MCP-compliant tools, so they can work with any agent framework without having to rebuild the connections each time.
 
 ---
 
