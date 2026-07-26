@@ -28,8 +28,8 @@ The layout of the prototype centers around a centralized **Routing Workflow** th
 flowchart TD
     A[👤 User] -->|Asks Question| B[💬 Streamlit UI]
     
-    B --> C[🎯 Supervisor<br>LLM Router]
-    C --> D[📊 Intent Analysis]
+    B --> C[🎯 Supervisor Node]
+    C --> D[📊 Keyword Matching]
     D --> E{🔀 Route Decision}
     
     E -->|Policy| F[📋 Policy Agent]
