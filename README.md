@@ -1,20 +1,20 @@
-# Multi-Agent Automotive Insurance QA Prototype (POC)
+# Multi-Agent Automotive Insurance QA Prototype
 
-This repository is an architectural **Proof of Concept (POC)** and showcase of an end-to-end, multi-agent car insurance question-answering system (Policy Agent, Claims Agent, Product Agent). The project focuses on demonstrating **orchestration frameworks** and **cloud-native AI platform designs** by routing and resolving simulated user questions across distinct functional domains.
+This repository is an architectural **Proof of Concept** and showcase of an end-to-end, multi-agent car insurance question-answering system (Policy Agent, Claims Agent, Product Agent). The project focuses on demonstrating **orchestration frameworks** and **cloud-native AI platform designs** by routing and resolving simulated user questions across distinct functional domains.
 
 The system is designed with a hybrid architecture that combines the following 3 parts:
 1. **Amazon Bedrock Managed Knowledge Bases (cloud RAG pipeline)**: for handling simulated policy guidelines, product catalogs, and claims processing workflows.  
 2. **Supervisor workflow orchestration (local coding)**: This part shows how the user questions are routed to the appropriate agent and how each agent handles the question, prompt template design and hallucination mitigation.
-3. **Streamlit for User-Facing UI Design**
+3. **Streamlit** for User-Facing UI Design
 
 
 Details of each part are shown in the section below.
 
-*Note: This is an exploratory prototype designed to evaluate multi-agent orchestration patterns using mock data. It is a phase-1 implementation and does not contain live legal compliance guardrails or state-specific statutory provisions.*
+*Note: This is an exploratory prototype designed to evaluate multi-agent orchestration patterns using mock data. It does not contain any legal compliance guardrails or state-specific statutory provisions.*
 
-## Core Architectural Concepts Under Evaluation
+## Architectural Concepts Under Evaluation
 
-* **Hybrid State Graph Orchestration**: Rather than relying on rigid sequential pipelines, the prototype evaluates the **Supervisor Pattern** using **LangGraph**. Through pythonic state declarations (`StateGraph`), the system runs a basic layout to manage multi-agent communication and track conversation flow (`Shared Session Memory`).
+* **Hybrid State Graph Orchestration**: Rather than relying on rigid sequential pipelines, the prototype evaluates the **Supervisor Pattern** using **LangGraph**. Through python's state declarations (`StateGraph`), the system runs a basic layout to manage multi-agent communication and track conversation flow (`Shared Session Memory`).
 * **Cloud-Native Ingestion & Retrieval**: To bypass the operational overhead of setting up local vector databases or complex text-splitting workflows during prototyping, ingestion and retrieval are offloaded to **AWS Bedrock Knowledge Bases**. The backend utilizes the standard `boto3` SDK to interact with the managed service via the `retrieve_and_generate` API.
 * **Decoupled Prototype Design**: The system maintains a clean separation of concerns by utilizing **Streamlit** for a lightweight, standalone user interface, while keeping the core agent logic independent of the frontend layout to allow for easier logic modifications.
 
@@ -61,7 +61,7 @@ flowchart TD
 ```
 ---
 
-## 🛠️ Tech Stack & Service Components
+## Tech Stack & Service Components
 
 * **Orchestration Framework**: LangGraph (`StateGraph`) — Handles multi-agent memory and routing workflows.
 * **Cloud AI Service (LLM)**: Amazon Nova Pro (`amazon.nova-pro-v1:0`) — Accessed via Amazon Bedrock API for response synthesis.
@@ -74,31 +74,31 @@ flowchart TD
 
 ## Evaluation & Test Scenarios
 
-We evaluated three functional domains (Policy, Claims, Product) using representative user queries. All tests follow a unified routing pipeline: **supervisor → intent classification → domain agent → knowledge base retrieval → response synthesis**. Sample queries listed below
+I evaluated three functional domains (Policy, Claims, Product) using representative user queries. All tests follow a unified routing pipeline: **supervisor → intent classification → domain agent → knowledge base retrieval → response synthesis**. Sample queries listed below
 
 | Domain   | Sample User Query                                                                                   |
 |----------|-----------------------------------------------------------------------------------------------------|
-| Policy   | "What does liability coverage cover? "          |
+| Policy   | "What does liability coverage cover?"          |
 | Claims   | "My friend borrowed my car and got into an accident. Am I covered?"                                   |
 | Product  | "What is the good student discount?"               |
 
 ---
 
-## 💡 Engineering Insights & Key Learnings
+## Engineering Insights
 
-Building this multi-agent car insurance POC provided deep hands-on experience in balancing cloud-native infrastructure efficiency with agentic workflow predictability.  Below are the core technical challenges encountered and resolved during implementation:
+Building this multi-agent car insurance POC provided hands-on experience in balancing cloud-native infrastructure efficiency with agentic workflow predictability.  Below are the core technical challenges I encountered and resolved during implementation:
 
 ### 1. Eliminating LLM Non-Determinism Across Environments
-* **The Challenge**: During baseline testing, identical prompts and centralized configurations yielded inconsistent results across the local testing script (`agents_testing_claims.py`) and the Streamlit web UI (`app.py`). The discrepancies weren't just stylistic; the core answers drifted in completely different directions.
-* **What I Tried**: Refactored `config.py` to introduce a centralized `INFERENCE_CONFIG` with `temperature` explicitly forced to `0.0`. By default, invoking the Amazon Bedrock `retrieve_and_generate` API without an explicit `inferenceConfig` uses a default temperature, which adds randomness and causes different outputs across runs.
+* **The Challenge**: During baseline testing, identical prompts and centralized configurations yielded inconsistent results across the local testing script (`agents_testing_claims.py`) and the Streamlit web UI (`app.py`). The discrepancies were more than just stylistic. Core answers drifted in completely different directions.
+* **What I Learned**: Refactored `config.py` to introduce a centralized `INFERENCE_CONFIG` with `temperature` explicitly forced to `0.0`. By default, invoking the Amazon Bedrock `retrieve_and_generate` API without an explicit `inferenceConfig` uses a default temperature, which adds randomness and causes different outputs across runs.
 * **The Result**: Answers are now logically aligned across both environments. Final wording still varies slightly due to other runtime factors (LangGraph state, retrieval order etc.), but the core content is consistent. 
 
-### 2. Upgrading Routing: From Rigid Keywords to LLM Semantic Routing
-* **The Edge Case**: During baseline testing, a classic keyword collision bug occurred. When a user asked: *"My friend borrowed my car and got into an **accident**. Am I **covered**?"*, a traditional string-matching router incorrectly forced the flow into the **Claims Agent** because it flagged the word "accident", completely ignoring that the core user intent was to verify policy eligibility.
+### 2. Upcoming Upgrades to Routing: From Rigid Keywords to LLM Semantic Routing
+* **The Edge Case**: During baseline testing, a classic keyword collision bug occurred. When a user asked: *"My friend borrowed my car and got into an **accident**. Am I **covered**?"*, a traditional string-matching router incorrectly forced the flow into the **Claims Agent** because it flagged the word "accident", completely ignoring that the user intent was to verify policy eligibility.
 * **The Solution**: Hardcoded keyword matching cannot resolve cross-domain semantic overlap. To achieve a **well-governed and reliable** environment, the architecture will need to be refactored to use an **LLM-driven Semantic Router**. By introducing a lightweight intent-classification prompt, the core model will read the comprehensive semantic meaning, accurately directing such complex boundary queries to the **Policy Agent**.
 
 ### 3. FinOps Awareness: Navigating Serverless Cost Realities
-* **The Discovery**:  A key operational insight came from monitoring the billing behavior of Amazon OpenSearch Serverless (AOSS). Although marketed as "serverless," AOSS reserves a baseline amount of capacity at all times for high availability. In the author's region, this costs about $5/day even when the system is completely idle.
+* **The Discovery**:  A key operational insight came from monitoring the billing behavior of Amazon OpenSearch Serverless (AOSS). Although marketed as "serverless," AOSS reserves a baseline amount of capacity at all times for high availability. In my region, this costs about $5/day even when the system is completely idle.
 * **The Practice**: For a lean prototype and RAG evaluation phase, strict environment lifecycle management is essential. The author standardized the pipeline to tear down AOSS collections during extended downtime. For production, this cost consideration needs to be factored into the overall architecture planning.
 
 ---
