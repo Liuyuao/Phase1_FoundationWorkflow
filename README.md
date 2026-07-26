@@ -74,12 +74,12 @@ flowchart TD
 
 ## Evaluation & Test Scenarios
 
-I evaluated three functional domains (Policy, Claims, Product) using representative user queries. All tests follow a unified routing pipeline: **supervisor → intent classification → domain agent → knowledge base retrieval → response synthesis**. Sample queries listed below
+This POC evaluated three functional domains (Policy, Claims, Product) using representative user queries. All tests follow a unified routing pipeline: **user query → supervisor → intent classification → domain agent → knowledge base retrieval → response synthesis**. Sample queries listed below
 
 | Domain   | Sample User Query                                                                                   |
 |----------|-----------------------------------------------------------------------------------------------------|
-| Policy   | "What does liability coverage cover?"          |
-| Claims   | "My friend borrowed my car and got into an accident. Am I covered?"                                   |
+| Policy   | "My friend borrowed my car and got into an accident. Am I covered?"          |
+| Claims   | "What should I do immediately after a car accident?"                                   |
 | Product  | "What is the good student discount?"               |
 
 ---
@@ -99,14 +99,14 @@ Building this multi-agent car insurance POC provided hands-on experience in bala
 
 ### 3. FinOps Awareness: Navigating Serverless Cost Realities
 * **The Discovery**:  A key operational insight came from monitoring the billing behavior of Amazon OpenSearch Serverless (AOSS). Although marketed as "serverless," AOSS reserves a baseline amount of capacity at all times for high availability. In my region, this costs about $5/day even when the system is completely idle.
-* **The Practice**: For a lean prototype and RAG evaluation phase, strict environment lifecycle management is essential. The author standardized the pipeline to tear down AOSS collections during extended downtime. For production, this cost consideration needs to be factored into the overall architecture planning.
+* **The Practice**: For a lean prototype and RAG evaluation phase, strict environment lifecycle management is essential. I standardized the pipeline to tear down AOSS collections during extended downtime. For production, this cost consideration needs to be factored into the overall architecture planning.
 
 ---
 
 ## Future Roadmap
 
 1. **LLM-Driven Semantic Router**: Replace keyword matching with semantic intent routing using a lightweight Bedrock LLM call for better handling of ambiguous queries.
-2. **Testing, Observability & Evaluation**: Add metrics, monitoring, audit logging, tracing, and an evaluation harness to improve system reliability and enable regression testing.
+2. **Testing, Observability & Evaluation**: Add metrics, monitoring, audit logging, tracing, and an evaluation harness to improve system reliability and ensure consistent outputs.
 3. **Model Context Protocol (MCP) Integration**: Expose S3 buckets as MCP-compliant tools, so they can work with any agent framework without having to rebuild the connections each time.
 
 ---
