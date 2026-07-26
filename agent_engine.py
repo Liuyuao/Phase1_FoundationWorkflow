@@ -51,7 +51,7 @@ def product_node(state: AgentState) -> dict:
     answer = call_knowledge_base(state["question"], "product")
     return {"final_answer": answer, "active_agent": "Product Agent", "messages": [{"role": "assistant", "content": answer}]}
 
-# Routing Workflow (Your explicit supervisor logic)
+# Routing Workflow (Supervisor logic)
 def router_workflow(state: AgentState) -> Literal["policy_node", "claims_node", "product_node"]:
     question = state["question"].lower()
     
@@ -59,12 +59,14 @@ def router_workflow(state: AgentState) -> Literal["policy_node", "claims_node", 
     claims_keywords = ["claim", "accident", "crash", "damage", "repair", "total loss", "file", "report", "settlement"]
     products_keywords = ["discount", "save", "offer", "multi-policy", "multi-car", "student", "driver"]
     
-    if any(kw in question for kw in claims_keywords):
-        return "claims_node"
-    elif any(kw in question for kw in products_keywords):
-        return "product_node"
-    else:
-        return "policy_node"  # Fallback router destination
+if any(kw in question for kw in claims_keywords):
+    return "claims_node"
+elif any(kw in question for kw in products_keywords):
+    return "product_node"
+elif any(kw in question for kw in policy_keywords):
+    return "policy_node"
+else:
+    return "cannot_answer_node"  # off-topic guardrail 1
 
 # Construct LangGraph
 workflow = StateGraph(AgentState)
